@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="js/kanshi.js"></script>
+
+</head>
+<body>
+    <div id="bulk-controls">
+        <input type="checkbox" id="bulk-renewable" checked>
+        <label for="bulk-renewable">再エネ全選択</label>
+        <input type="checkbox" id="bulk-nonrenewable" checked>
+        <label for="bulk-nonrenewable">非再エネ全選択</label>
+    </div>
+    <div id="checkboxes">
+        <!-- チェックボックスは後でJavaScriptで生成します -->
+    </div>
+    <canvas id="myChart" width="400" height="200"></canvas>
+</body>
+</html>
