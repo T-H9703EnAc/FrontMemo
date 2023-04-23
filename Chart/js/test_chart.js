@@ -36,11 +36,10 @@ TestChart.prototype.init = function () {
   panel.createCheckboxes(initialData);
   panel.renderChart(initialData);
 
-  // 簡易モードを適用してグラフを表示
-  const initialMode = $("input[name='mode']:checked").val();
-  const dataWithInitialMode = panel.applyMode(initialMode, initialData);
-  panel.chart.data = dataWithInitialMode;
-  panel.chart.update();
+  // // 簡易モードを適用してグラフを表示
+  // const initialMode = $("input[name='mode']:checked").val();
+  // const dataWithInitialMode = panel.applyMode(initialMode, initialData);
+  // panel.renderChart(dataWithInitialMode);
 };
 
 TestChart.prototype.applyMode = function (mode, data) {

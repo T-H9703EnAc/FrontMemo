@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>チャート表示</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  </head>
+  <body>
+    <div>
+      <label>
+        <input type="radio" name="mode" value="detail" checked /> 詳細モード
+      </label>
+      <label>
+        <input type="radio" name="mode" value="simple" /> 簡易モード
+      </label>
+    </div>
+
+    <div id="checkboxes">
+      <!-- チェックボックスはJavaScriptで生成します -->
+    </div>
+
+    <canvas id="chart"></canvas>
+
+    <script>
+      const CHART_NAME = [
+        "再エネAAA",
+        "非再エネAAA",
+        "再エネBBB",
+        "非再エネBBB",
+        "再エネCCC",
+        "非再エネCCC",
+        "再エネDDD",
+        "非再エネDDD",
+        "その他AAA",
+        "その他BBB",
+        "その他CCC",
+        "その他DDD",
+      ];
+
+      // データのサンプル（適宜変更してください）
+      const sampleData = {
+        labels: ["January", "February", "March", "April", "May", "June"],
+        datasets: CHART_NAME.map((name, index) => {
+          return {
+            label: name,
+            data: Array.from({ length: 6 }, () =>
+              Math.floor(Math.random() * 100)
+            ),
+            type: index % 2 === 0 ? "bar" : "line",
+            borderColor: `hsl(${(360 / CHART_NAME.length) * index}, 100%, 50%)`,
+            backgroundColor: `hsla(${
+              (360 / CHART_NAME.length) * index
+            }, 100%, 50%, 0.2)`,
+            hidden: false,
+          };
+        }),
+      };
+
+      const ctx = document.getElementById("chart").getContext("2d");
+      const chart = new Chart(ctx, {
+        type: "bar",
+        data: sampleData,
+        options: {
+          responsive: true,
+          scales: {
+            y: {
+              beginAtZero: true,
+            },
+          },
+        },
+      });
+
+      function updateCheckboxes(mode) {
+        const $checkboxes = $("#checkboxes");
+        $checkboxes.empty();
+
+        if (mode === "detail") {
+          CHART_NAME.forEach((name, index) => {
+            const $label = $("<label>");
+            const $checkbox = $("<input>", {
+              type: "checkbox",
+              checked: true,
+              change: function () {
+                chart.data.datasets[index].hidden = !this.checked;
+                chart.update();
+              },
+            });
+            $label.append($checkbox, name);
+            $checkboxes.append($label);
+          });
+        } else {
+          ["再エネ", "非再エネ", "その他"].forEach((prefix, groupIndex) => {
+            const $label = $("<label>");
+            const $checkbox = $("<input>", {
+              type: "checkbox",
+              checked: true,
+              change: function () {
+                const indices = [groupIndex * 2, groupIndex * 2 + 1];
+                indices.forEach((index) => {
+                  chart.data.datasets[index].hidden = !this.checked;
+                });
+                if (groupIndex === 1) {
+                  // 非再エネの積み上げグラフも切り替える
+                  chart.data.datasets[CHART_NAME.length].hidden = !this.checked;
+                  chart.data.datasets[CHART_NAME.length + 1].hidden =
+                    !this.checked;
+                }
+                chart.update();
+              },
+            });
+            $label.append($checkbox, prefix);
+            $checkboxes.append($label);
+          });
+        }
+      }
+
+      function updateChartData(mode) {
+        if (mode === "simple") {
+          // 非再エネの積み上げグラフを追加
+          const barStackedData = sampleData.datasets[1].data.map(
+            (value, index) => value + sampleData.datasets[3].data[index]
+          );
+          const lineStackedData = sampleData.datasets[5].data.map(
+            (value, index) => value + sampleData.datasets[7].data[index]
+          );
+          const barStackedDataset = {
+            label: "非再エネ(積み上げ)",
+            data: barStackedData,
+            type: "bar",
+            borderColor: "rgba(0, 0, 0, 0.7)",
+            backgroundColor: "rgba(0, 0, 0, 0.2)",
+            hidden: false,
+          };
+          const lineStackedDataset = {
+            label: "非再エネ(積み上げ)",
+            data: lineStackedData,
+            type: "line",
+            borderColor: "rgba(0, 0, 0, 0.7)",
+            backgroundColor: "rgba(0, 0, 0, 0.2)",
+            hidden: false,
+          };
+          chart.data.datasets.push(barStackedDataset, lineStackedDataset);
+        } else {
+          // 積み上げグラフを削除
+          chart.data.datasets.splice(CHART_NAME.length, 2);
+        }
+        chart.update();
+      }
+
+      // ラジオボタンの変更イベント
+      $('input[name="mode"]').on("change", function () {
+        const mode = this.value;
+        updateCheckboxes(mode);
+        updateChartData(mode);
+      });
+
+      // 初期表示
+      updateCheckboxes("detail");
+      updateChartData("detail");
+    </script>
+  </body>
+</html>
